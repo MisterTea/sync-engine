@@ -48,8 +48,9 @@ $ sudo dpkg-reconfigure --frontend noninteractive tzdata
 
 
 def check_tz():
-    if time.tzname[time.daylight] != 'UTC':
-        sys.exit(_TZ_ERROR_TEXT)
+    pass
+    #if time.tzname[time.daylight] != 'UTC':
+        #sys.exit(_TZ_ERROR_TEXT)
 
 
 def load_overrides(file_path):
