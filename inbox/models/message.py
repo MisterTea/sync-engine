@@ -7,7 +7,7 @@ from collections import defaultdict
 from flanker import mime
 from sqlalchemy import (Column, Integer, BigInteger, String, DateTime,
                         Boolean, Enum, ForeignKey, Index, bindparam)
-from sqlalchemy.dialects.mysql import LONGBLOB
+#from sqlalchemy.dialects.mysql import LONGBLOB
 from sqlalchemy.orm import (relationship, backref, validates, joinedload,
                             subqueryload, load_only)
 from sqlalchemy.sql.expression import false
@@ -26,6 +26,9 @@ from inbox.models.base import MailSyncBase
 from inbox.models.namespace import Namespace
 from inbox.models.category import Category
 
+import sqlalchemy
+import sqlalchemy.types
+BLOB = sqlalchemy.types.LargeBinary()
 
 def _trim_filename(s, namespace_id, max_len=64):
     if s and len(s) > max_len:
@@ -94,7 +97,7 @@ class Message(MailSyncBase, HasRevisions, HasPublicID):
         else:
             self.state = 'actions_committed'
 
-    _compacted_body = Column(LONGBLOB, nullable=True)
+    _compacted_body = Column(BLOB, nullable=True)
     snippet = Column(String(191), nullable=False)
     SNIPPET_LENGTH = 191
 

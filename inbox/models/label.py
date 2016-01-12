@@ -26,7 +26,7 @@ class Label(MailSyncBase):
             passive_deletes=True),
         load_on_pending=True)
 
-    name = Column(String(MAX_LABEL_NAME_LENGTH, collation='utf8mb4_bin'),
+    name = Column(String(MAX_LABEL_NAME_LENGTH,),
                   nullable=False)
     canonical_name = Column(String(MAX_LABEL_NAME_LENGTH), nullable=True)
 

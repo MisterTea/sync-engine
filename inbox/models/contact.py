@@ -82,9 +82,9 @@ class MessageContactAssociation(MailSyncBase):
     ...  'to_addr']
     """
     contact_id = Column(ForeignKey(Contact.id, ondelete='CASCADE'),
-                        primary_key=True)
+                        )
     message_id = Column(ForeignKey(Message.id, ondelete='CASCADE'),
-                        primary_key=True)
+                        )
     field = Column(Enum('from_addr', 'to_addr',
                         'cc_addr', 'bcc_addr', 'reply_to'))
     # Note: The `cascade` properties need to be a parameter of the backref

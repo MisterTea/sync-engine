@@ -30,13 +30,14 @@ def gevent_waiter(fd, hub=gevent.hub.get_hub()):
 
 
 def build_uri(username, password, hostname, port, database_name):
-    uri_template = 'mysql+mysqldb://{username}:{password}@{hostname}' \
-                   ':{port}/{database_name}?charset=utf8mb4'
-    return uri_template.format(username=urlquote(username),
-                               password=urlquote(password),
-                               hostname=urlquote(hostname),
-                               port=port,
-                               database_name=urlquote(database_name))
+    #uri_template = 'mysql+mysqldb://{username}:{password}@{hostname}' \
+    #               ':{port}/{database_name}?charset=utf8mb4'
+    #return uri_template.format(username=urlquote(username),
+    #                           password=urlquote(password),
+    #                           hostname=urlquote(hostname),
+    #                           port=port,
+    #                           database_name=urlquote(database_name))
+    return 'sqlite:///index.db'
 
 
 def engine(database_name, database_uri, pool_size=DB_POOL_SIZE,
@@ -44,14 +45,13 @@ def engine(database_name, database_uri, pool_size=DB_POOL_SIZE,
            echo=False):
     engine = create_engine(database_uri,
                            listeners=[ForceStrictMode()],
-                           isolation_level='READ COMMITTED',
+                           #isolation_level='READ COMMITTED',
                            echo=False,
-                           pool_size=pool_size,
-                           pool_timeout=pool_timeout,
-                           pool_recycle=3600,
-                           max_overflow=max_overflow,
-                           connect_args={'charset': 'utf8mb4',
-                                         'waiter': gevent_waiter})
+                           #pool_size=pool_size,
+                           #pool_timeout=pool_timeout,
+                           #pool_recycle=3600,
+                           #max_overflow=max_overflow,
+                           connect_args={})
 
     @event.listens_for(engine, 'checkout')
     def receive_checkout(dbapi_connection, connection_record,
@@ -60,15 +60,15 @@ def engine(database_name, database_uri, pool_size=DB_POOL_SIZE,
         hostname = gethostname().replace(".", "-")
         process_name = str(config.get("PROCESS_NAME", "unknown"))
 
-        statsd_client.gauge(".".join(
-            ["dbconn", database_name, hostname, process_name,
-             "checkedout"]),
-            connection_proxy._pool.checkedout())
+        #statsd_client.gauge(".".join(
+        #["dbconn", database_name, hostname, process_name,
+        #"checkedout"]),
+        #connection_proxy._pool.checkedout())
 
-        statsd_client.gauge(".".join(
-            ["dbconn", database_name, hostname, process_name,
-             "overflow"]),
-            connection_proxy._pool.overflow())
+        #statsd_client.gauge(".".join(
+        #["dbconn", database_name, hostname, process_name,
+        #"overflow"]),
+        #connection_proxy._pool.overflow())
 
         # Keep track of where and why this connection was checked out.
         log = get_logger()
@@ -78,16 +78,17 @@ def engine(database_name, database_uri, pool_size=DB_POOL_SIZE,
                                                          'nylas.logging'])
         source = '{}:{}'.format(name, f.f_lineno)
 
-        pool_tracker[dbapi_connection] = {
-            'source': source,
-            'context': context,
-            'checkedout_at': time.time()
-        }
+        #pool_tracker[dbapi_connection] = {
+        #'source': source,
+        #'context': context,
+        #'checkedout_at': time.time()
+        #}
 
     @event.listens_for(engine, 'checkin')
     def receive_checkin(dbapi_connection, connection_record):
-        if dbapi_connection in pool_tracker:
-            del pool_tracker[dbapi_connection]
+        #if dbapi_connection in pool_tracker:
+        #del pool_tracker[dbapi_connection]
+        pass
 
     return engine
 
@@ -156,17 +157,19 @@ def init_db(engine, key=0):
     # Hopefully setting auto_increment via an event listener will make it safe
     # to execute this function multiple times.
     # STOPSHIP(emfree): verify
-    increment = (key << 48) + 1
-    for table in MailSyncBase.metadata.tables.values():
-        event.listen(table, 'after_create',
-                     DDL('ALTER TABLE {tablename} AUTO_INCREMENT={increment}'.
-                         format(tablename=table, increment=increment)))
+    # TODO: JJG: Don't know the point of this yet.
+    #increment = (key << 48) + 1
+    #for table in MailSyncBase.metadata.tables.values():
+    #event.listen(table, 'after_create',
+    #DDL('ALTER TABLE {tablename} AUTO_INCREMENT={increment}'.
+    #format(tablename=table, increment=increment)))
 
     MailSyncBase.metadata.create_all(engine)
 
 
 def verify_db(engine, schema, key):
     from inbox.models.base import MailSyncBase
+    return
 
     query = """SELECT AUTO_INCREMENT from information_schema.TABLES where
     table_schema='{}' AND table_name='{}';"""

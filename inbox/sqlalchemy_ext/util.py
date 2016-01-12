@@ -250,9 +250,10 @@ def generate_public_id():
 class ForceStrictMode(PoolListener):
 
     def connect(self, dbapi_con, connection_record):
-        cur = dbapi_con.cursor()
-        cur.execute("SET SESSION sql_mode='TRADITIONAL'")
-        cur = None
+        #cur = dbapi_con.cursor()
+        #cur.execute("SET SESSION sql_mode='TRADITIONAL'")
+        #cur = None
+        pass
 
 
 def maybe_refine_query(query, subquery):

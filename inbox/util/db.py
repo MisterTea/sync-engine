@@ -29,7 +29,7 @@ def drop_everything(engine, keep_tables=[], reset_columns={}):
         if table_name in keep_tables:
             # Reset certain columns in certain tables we're keeping
             if table_name in reset_columns:
-                t = Table(table_name, metadata)
+                t = Table(table_name, metadata, sqlite_autoincrement=True)
 
                 column_names = reset_columns[table_name]
                 for c in inspector.get_columns(table_name):
@@ -46,7 +46,7 @@ def drop_everything(engine, keep_tables=[], reset_columns={}):
             if not fk['name']:
                 continue
             fks.append(ForeignKeyConstraint((), (), name=fk['name']))
-        t = Table(table_name, metadata, *fks)
+        t = Table(table_name, metadata, *fks, sqlite_autoincrement=True)
         tbs.append(t)
         all_fks.extend(fks)
 
